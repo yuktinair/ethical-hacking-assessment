@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Log Analyzer</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 30px;
+            background: #101827;
+            color: #e5e7eb;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #60a5fa;
+        }
+
+        .subtitle {
+            color: #9ca3af;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .card, .panel {
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .number {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .label {
+            color: #9ca3af;
+            margin-top: 8px;
+        }
+
+        input, button {
+            padding: 10px;
+            margin-top: 12px;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .alert {
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 12px 0;
+            background: #30212a;
+            border-radius: 6px;
+        }
+
+        .success {
+            color: #86efac;
+        }
+
+        .error {
+            color: #fca5a5;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>Security Log Analyzer</h1>
+
+    <p class="subtitle">
+        Analyze security logs and detect suspicious login activity.
+    </p>
+
+    <div class="panel">
+        <h2>Upload Security Log</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="logfile" accept=".log" required>
+            <button type="submit">Analyze Logs</button>
+        </form>
+
+        <p class="subtitle">
+            Maximum file size: 1 MB. Upload only logs you are authorized to analyze.
+        </p>
+    </div>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    {% if result %}
+
+    <h2>Analysis Overview</h2>
+
+    <div class="cards">
+
+        {% for label, key in [
+            ('Total Events', 'total_events'),
+            ('Failed Logins', 'failed_logins'),
+            ('Successful Logins', 'successful_logins'),
+            ('Other Events', 'other_events'),
+            ('Invalid Lines', 'invalid_lines'),
+            ('Alerts Generated', 'alerts_generated')
+        ] %}
+
+        <div class="card">
+            <div class="number">{{ result.statistics[key] }}</div>
+            <div class="label">{{ label }}</div>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    <div class="panel">
+        <h2>Threat Alerts</h2>
+
+        {% if result.alerts %}
+
+            {% for alert in result.alerts %}
+
+            <div class="alert">
+
+                <h3>{{ alert.title }}</h3>
+
+                <p>
+                    Severity: <strong>{{ alert.severity }}</strong>
+                </p>
+
+                <p>Source IP: {{ alert.source }}</p>
+
+                <p>{{ alert.description }}</p>
+
+                <p>
+                    <strong>Recommendation:</strong>
+                    {{ alert.recommendation }}
+                </p>
+
+                <p>Time: {{ alert.timestamp }}</p>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p class="success">
+                No suspicious login patterns detected in this log.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+    {% endif %}
+
+    <p class="subtitle">
+        Educational cybersecurity project. Alerts require human review.
+    </p>
+
+</div>
+</body>
+</html>
